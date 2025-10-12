@@ -1,0 +1,57 @@
+# WEB
+
+web/node_modules
+web/cypress/screenshots
+
+# API
+
+# ---- Python bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ---- Ambientes virtuais
+.venv/
+venv/
+
+# ---- Pacotes / build (se um dia empacotar)
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ---- Pytest / Coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+reports/
+tests/reports/
+
+# ---- Linters / Type checkers
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+
+# ---- IDEs / Editores
+.vscode/
+.idea/
+*.code-workspace
+
+# ---- SO / Lixo de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Logs e artefatos
+*.log
+*.tmp
+*.swp
+*.bak
+
+# ---- Variáveis de ambiente / segredos
+.env
+.env.*            # ex: .env.local, .env.dev
+!.env.example     # mantenha apenas o template sem segredos

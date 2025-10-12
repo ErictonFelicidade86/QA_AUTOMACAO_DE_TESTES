@@ -1,0 +1,19 @@
+{
+  "name": "Automacao de Testes Frontend",
+  "description": "Auotomação de teste Frontend com Cypress",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx cypress run",
+    "test:cy": "npx cypress open"
+  },
+  "keywords": [
+    "WEB",
+    "Cypress"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "cypress": "^14.1.0"
+  }
+}
