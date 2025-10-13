@@ -1,15 +1,85 @@
-name: CI - API Tests
+# name: CI - API Tests
+
+# on:
+#   pull_request:
+#     branches: [ main ]
+#     paths:
+#       - 'api/**'
+#       - '.github/workflows/**'
+#   push:
+#     branches: [ main ]
+#     paths:
+#       - 'api/**'
+#       - '.github/workflows/**'
+
+# concurrency:
+#   group: ci-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
+
+# jobs:
+#   api-tests:
+#     name: API (pytest)
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: api
+#     env:
+#       BASE_URL: ${{ secrets.BASE_URL }}
+#       TIMEOUT_SECONDS: 10
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Setup Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: '3.12'
+#           cache: 'pip'
+
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install -U pip
+#           pip install -r requirements.txt
+#           # Garante plugins usados em addopts do pytest.ini
+#           pip install pytest-html pytest-xdist pytest-cov
+
+#       - name: Ensure reports dir exists
+#         run: mkdir -p reports
+
+#       - name: Run tests (pytest + HTML)
+#         run: pytest -vv
+
+#       - name: Coverage (HTML + term)
+#         run: |
+#           pytest -vv --cov=src --cov-report=term \
+#             --cov-report=html:reports/coverage
+
+#       - name: Upload artifacts (report & coverage)
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: api-test-reports
+#           path: |
+#             api/reports/report.html
+#             api/reports/coverage/
+#           if-no-files-found: warn
+
+
+
+name: CI/CD
 
 on:
   pull_request:
     branches: [ main ]
     paths:
       - 'api/**'
+      - 'web/**'
       - '.github/workflows/**'
   push:
     branches: [ main ]
     paths:
       - 'api/**'
+      - 'web/**'
       - '.github/workflows/**'
 
 concurrency:
@@ -17,6 +87,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ===========================
+  # API (pytest)
+  # ===========================
   api-tests:
     name: API (pytest)
     runs-on: ubuntu-latest
@@ -41,13 +114,14 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
-          # Garante plugins usados em addopts do pytest.ini
+          # plugins usados nas flags do pytest.ini
           pip install pytest-html pytest-xdist pytest-cov
 
       - name: Ensure reports dir exists
         run: mkdir -p reports
 
       - name: Run tests (pytest + HTML)
+        # seu pytest.ini já tem: -v --html=reports/report.html --self-contained-html
         run: pytest -vv
 
       - name: Coverage (HTML + term)
@@ -62,4 +136,40 @@ jobs:
           path: |
             api/reports/report.html
             api/reports/coverage/
+          if-no-files-found: warn
+
+  # ===========================
+  # WEB (Cypress E2E headless)
+  # ===========================
+  web-tests:
+    name: Web (Cypress E2E)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    container:
+      image: cypress/browsers:node-22.11.0-chrome-130.0.6723.116-1-ff-132.0.1-edge-130.0.2849.68-1
+      options: --user 1001
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests (headless)
+        run: npx cypress run --browser chrome --config-file cypress.config.js
+        env:
+           CYPRESS_BASE_URL: ${{ secrets.CYPRESS_BASE_URL }}
+
+      - name: Upload Cypress artifacts (videos & screenshots)
+        if: always()  # publica mesmo em caso de falha
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            web/cypress/videos/**
+            web/cypress/screenshots/**
           if-no-files-found: warn
