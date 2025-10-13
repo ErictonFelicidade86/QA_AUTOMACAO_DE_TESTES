@@ -1,7 +1,7 @@
 # QA_AUTOMACAO_DE_TESTES
 
 ## 📌 Descrição das Pastas e Instruções de Execução
-## 🧪 Projeto api/ — Automação de Testes com Python + Pytest
+## 🧪 Projeto api/ — Automação de Testes com Python + Pytest + Request
 
 - Dentro da pasta api está concentrada toda a estrutura de automação de testes de API desenvolvida em Python utilizando Pytest.
 
