@@ -56,6 +56,9 @@
 
 ## Estrutura do projeto
 ```
+├── 📁 .github/
+│   └── 📁 workflows/
+│       └── ⚙️ ci.yml
 ├── 📁 api/
 │   ├── 📁 docs/
 │   │   ├── 📕 Relatorio_Incidentes_API.pdf
