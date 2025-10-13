@@ -34,7 +34,7 @@ describe('Realizar busca de um livro específico e adicioná-lo ao carrinho', ()
     home.addBookToCart();   // Adicionar o livro ao carrinho
   });
 
-  it.only('Fluxo completo da busca do livro especifico', ()=> {
+  it('Fluxo completo da busca do livro especifico', ()=> {
     home.goTo();                  // Acessar página inicial da Amazon
     home.bookSearch();            // Pesquisa pelo titulo
     home.selectBook();            // Lista de resultados
