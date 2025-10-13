@@ -34,13 +34,13 @@ describe('Realizar busca de um livro específico e adicioná-lo ao carrinho', ()
     home.addBookToCart();   // Adicionar o livro ao carrinho
   });
 
-  it('Fluxo completo da busca do livro especifico', ()=> {
+  it.only('Fluxo completo da busca do livro especifico', ()=> {
     home.goTo();                  // Acessar página inicial da Amazon
     home.bookSearch();            // Pesquisa pelo titulo
     home.selectBook();            // Lista de resultados
     home.bookDetails();           // Validar detalhes do livro
     home.addBookToCart();         // Adicionar o livro ao carrinho
-    home.aonfirmationMessage();   // Validar mensagem de confirmação
+    home.confirmationMessage();   // Validar mensagem de confirmação
   });
   
 });
