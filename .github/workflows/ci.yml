@@ -41,16 +41,17 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
-          pip install pytest-xdist pytest-cov pytest-html
+
+      - name: Ensure reports dir exists
+        run: mkdir -p tests/reports
 
       - name: Run tests (pytest + HTML)
-        run: |
-          python -m pytest -vv -n auto \
-            --html=tests/reports/report.html --self-contained-html
+        run: pytest -n auto
 
       - name: Coverage
         run: |
-          python -m pytest -vv --cov=src --cov-report=term --cov-report=html:tests/reports/coverage
+          python -m pytest -vv --cov=src --cov-report=term \
+            --cov-report=html:tests/reports/coverage
 
       - name: Upload artifacts (pytest report + coverage)
         uses: actions/upload-artifact@v4
