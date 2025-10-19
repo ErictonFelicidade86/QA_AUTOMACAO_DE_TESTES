@@ -1,46 +1,49 @@
 import pytest
-from src.client import get
-from src.testdata import VALID_POST_IDS, INVALID_IDS, INVALID_ROUTES
-from tests.helpers import assert_status_and_attach
+from src.client import APIClient
+from src.testdata import post_test_data
+from tests.helpers import ResponseValidator
 
-
-def test_get_all(request):
-    path = "/posts"
-    expected = 200
-    resp = get(path)
-    assert_status_and_attach(request, resp, expected, path)
-
-
-@pytest.mark.parametrize(
-    "post_id", VALID_POST_IDS, ids=[f"id_{i}" for i in VALID_POST_IDS]
-)
-def test_get_by_valid_ids(post_id, request):
-    path = f"/posts/{post_id}"
-    expected = 200
-    resp = get(path)
-    assert_status_and_attach(request, resp, expected, path)
-    data = resp.json()
-    request.node.expected_json = {"id": int(post_id)}
-    assert data.get("id") == int(post_id)
-    assert "title" in data and "body" in data
-
-
-@pytest.mark.parametrize(
-    "post_id",
-    INVALID_IDS,
-    ids=["inexistente", "zero", "negativo", "string", "null_literal"],
-)
-def test_get_invalid_ids(post_id, request):
-    path = f"/posts/{post_id}"
-    expected = 404
-    resp = get(path)
-    assert_status_and_attach(request, resp, expected, path)
-
-
-@pytest.mark.parametrize(
-    "path", INVALID_ROUTES, ids=["rota_errada_1", "rota_errada_2", "caractere_especial"]
-)
-def test_get_invalid_routes(path, request):
-    expected = 404
-    resp = get(path)
-    assert_status_and_attach(request, resp, expected, path)
+class TestPostsAPI:
+    """Testes para endpoint de posts (GET)."""
+    
+    @pytest.fixture
+    def api_client(self):
+        """Fixture que fornece cliente API configurado."""
+        return APIClient()
+    
+    def test_get_all_posts(self, api_client, request):
+        path = "/posts"
+        response = api_client.get(path)
+        
+        ResponseValidator.assert_status_code(response, 200, path, request=request)  # ✅ Adicionar request
+        
+        assert isinstance(response.json(), list)
+        assert len(response.json()) > 0
+    
+    @pytest.mark.parametrize("post_id", post_test_data.valid_ids)
+    def test_get_post_by_valid_id(self, api_client, post_id, request):
+        """Deve retornar post específico quando ID é válido."""
+        path = f"/posts/{post_id}"
+        response = api_client.get(path)
+        
+        ResponseValidator.assert_status_code(response, 200, path, request=request)  # ✅ Adicionar request
+        
+        data = response.json()
+        assert data["id"] == int(post_id)
+        assert all(key in data for key in ["title", "body", "userId"])
+    
+    @pytest.mark.parametrize("post_id", post_test_data.invalid_ids, 
+                           ids=["inexistente", "zero", "negativo", "string", "null"])
+    def test_get_post_by_invalid_id(self, api_client, post_id, request):
+        """Deve retornar 404 quando ID é inválido."""
+        path = f"/posts/{post_id}"
+        response = api_client.get(path)
+        
+        ResponseValidator.assert_status_code(response, 404, path, request=request)  # ✅ Adicionar request
+    
+    @pytest.mark.parametrize("invalid_path", post_test_data.invalid_routes)
+    def test_get_invalid_routes(self, api_client, invalid_path, request):
+        """Deve retornar 404 para rotas inválidas."""
+        response = api_client.get(invalid_path)
+        
+        ResponseValidator.assert_status_code(response, 404, invalid_path, request=request)  # ✅ Adicionar request

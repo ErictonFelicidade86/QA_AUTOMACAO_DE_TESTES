@@ -1,38 +1,46 @@
 import os
 import requests
+from typing import Dict, Any, Optional
 from dotenv import load_dotenv
+from urllib.parse import urljoin
 
 load_dotenv()
 
-BASE_URL = os.getenv("BASE_URL")
-TIMEOUT = int(os.getenv("TIMEOUT_SECONDS", 10))
-
-def get_headers():
-    return {
-        "Content-Type": "application/json",
-    }
-
-def get(path, params=None):
-    """
-    Realiza uma requisição GET para a BASE_URL + path
-    """
-    url = f"{BASE_URL}{path}"
-    response = requests.get(url, headers=get_headers(), params=params, timeout=TIMEOUT)
-    return response
-
-def post(path, json=None):
-    """
-    Realiza uma requisição POST para a BASE_URL + path
-    """
-    url = f"{BASE_URL}{path}"
-    response = requests.post(url, headers=get_headers(), json=json, timeout=TIMEOUT)
-    return response
-
-def _join(path: str) -> str:
-    return f"{BASE_URL}{path if path.startswith('/') else '/' + path}"
-
-def get(path, params=None):
-    return requests.get(_join(path), headers=get_headers(), params=params, timeout=TIMEOUT)
-
-def post(path, json=None):
-    return requests.post(_join(path), headers=get_headers(), json=json, timeout=TIMEOUT)
+class APIClient:
+    """Cliente HTTP para interações com a API."""
+    
+    def __init__(self, base_url: Optional[str] = None, timeout: int = 10):
+        self.base_url = base_url or os.getenv("BASE_URL")
+        self.timeout = int(os.getenv("TIMEOUT_SECONDS", timeout))
+        if not self.base_url:
+            raise ValueError("BASE_URL não configurada")
+    
+    @property
+    def headers(self) -> Dict[str, str]:
+        """Headers padrão para requisições."""
+        return {"Content-Type": "application/json"}
+    
+    def _build_url(self, path: str) -> str:
+        """Constrói URL completa a partir do path."""
+        path = path.lstrip('/')
+        return urljoin(f"{self.base_url}/", path)
+    
+    def get(self, path: str, params: Optional[Dict] = None) -> requests.Response:
+        """Realiza requisição GET."""
+        url = self._build_url(path)
+        return requests.get(
+            url, 
+            headers=self.headers, 
+            params=params, 
+            timeout=self.timeout
+        )
+    
+    def post(self, path: str, json: Optional[Dict] = None) -> requests.Response:
+        """Realiza requisição POST."""
+        url = self._build_url(path)
+        return requests.post(
+            url, 
+            headers=self.headers, 
+            json=json, 
+            timeout=self.timeout
+        )
